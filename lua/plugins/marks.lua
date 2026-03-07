@@ -1,7 +1,7 @@
 return {
-  'chentoast/marks.nvim',
-  event = 'VeryLazy',
-  opts = {
-    builtin_marks = { "'", '<', '>', '.', '^', '"', '[', ']' },
-  },
+  -- 'chentoast/marks.nvim',
+  -- event = 'VeryLazy',
+  -- opts = {
+  --   builtin_marks = { "'", '<', '>', '.', '^', '"', '[', ']' },
+  -- },
 }

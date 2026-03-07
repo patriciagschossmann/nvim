@@ -139,7 +139,7 @@ M.get_all_ensure_installed_mason_names = function()
     'rust-analyzer',
     'shellcheck',
     'shfmt',
-    'sonarlint-language-server',
+    -- 'sonarlint-language-server',
     'stylua',
     -- "texlab",
     'terraform-ls',
