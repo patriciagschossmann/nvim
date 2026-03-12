@@ -1,4 +1,6 @@
 local map = vim.keymap.set
+-- Lazy
+map('n', '<leader>L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
 
 -- Lazy
 map('n', 'L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
@@ -20,12 +22,6 @@ map('n', '<leader>bn', '<CMD>enew<CR>', { desc = 'Buffer New' })
 map('n', '<C-Tab>', '<CMD>tabnext<CR>', { desc = 'Tab Next' })
 map('n', '<C-S-Tab>', '<CMD>tabprevious<CR>', { desc = 'Tab Previous' })
 
--- Move lines
-map('i', '<M-k>', '<CMD> m-2<CR>', { desc = 'Move Move line up' })
-map('i', '<M-j>', '<CMD> m+1<CR>', { desc = 'Move Move line down' })
-map('i', '<M-h>', '<CMD><<CR>', { desc = 'Move Move line left' })
-map('i', '<M-l>', '<CMD>><CR>', { desc = 'Move Move line right' })
-
 -- Highlights
 map('n', '<Esc>', '<CMD>noh<CR>', { desc = 'General Clear all highlights' })
 map('n', '<leader>a', 'ggVG<CR>', { desc = 'Highlight Highlight all' })
@@ -42,8 +38,3 @@ map('n', '<leader>ldl', vim.diagnostic.setloclist, { desc = 'Diagnostics Diagnos
 
 -- Terminal
 map('t', '<C-x>', '<C-\\><C-N>', { desc = 'Terminal escape terminal mode' })
-
--- Transparency
--- map("n", "<leader>tt", function()
---   require("colors").toggle_transparency()
--- end, { desc = "Toggle Transparency" })
