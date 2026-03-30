@@ -2,9 +2,6 @@ local map = vim.keymap.set
 -- Lazy
 map('n', '<leader>L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
 
--- Lazy
-map('n', 'L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
-
 map('i', 'jk', '<ESC>', { desc = 'Escape with jk' })
 
 map('n', '<leader><leader>', '<S-v>', { desc = 'Enter visual line mode' })
