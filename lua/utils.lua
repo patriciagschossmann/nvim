@@ -90,4 +90,25 @@ M.gotoDefinitionInSplit = function()
   vim.lsp.buf.definition()
 end
 
+-- Open JIRA issue keys with gx, otherwise use Neovim's normal gx behavior
+local _default_gx = vim.fn.maparg('gx', 'n', false, true).callback
+
+M.jiraExtendedGx = function()
+  local issue = vim.fn.expand('<cWORD>'):match('[A-Z]+%-%d+')
+
+  if issue then
+    local jira_url = vim.env.SAIII_JIRA_URL
+
+    if not jira_url or jira_url == '' then
+      vim.notify('SAIII_JIRA_URL is not set', vim.log.levels.ERROR)
+      return
+    end
+
+    vim.ui.open(jira_url .. issue)
+    return
+  end
+
+  _default_gx()
+end
+
 return M

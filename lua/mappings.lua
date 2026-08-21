@@ -1,4 +1,7 @@
+local utils = require('utils')
+
 local map = vim.keymap.set
+
 -- Lazy
 map('n', '<leader>L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
 
@@ -35,3 +38,6 @@ map('n', '<leader>ldl', vim.diagnostic.setloclist, { desc = 'Diagnostics Diagnos
 
 -- Terminal
 map('t', '<C-x>', '<C-\\><C-N>', { desc = 'Terminal escape terminal mode' })
+
+-- Project-related stuff
+map('n', 'gx', utils.jiraExtendedGx, { desc = 'JIRA extended gx' })
