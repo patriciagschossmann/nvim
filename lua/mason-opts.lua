@@ -137,7 +137,7 @@ M.get_all_ensure_installed_mason_names = function()
     'qmlls',
     'shellcheck',
     'shfmt',
-    -- 'sonarlint-language-server',
+    'sonarlint-language-server',
     'stylua',
     'terraform-ls',
     'trivy',
