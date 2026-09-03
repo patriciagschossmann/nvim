@@ -76,10 +76,11 @@ return {
 	"mfussenegger/nvim-jdtls",
 	dependencies = {
 		"mason-org/mason.nvim",
-		"JavaHello/spring-boot.nvim",
+		-- 'JavaHello/spring-boot.nvim',
 	},
 	ft = "java",
 	keys = {
+		{ "<leader>j", desc = "+Java", mode = { "n", "x" } },
 		{ "<leader>joi", '<CMD>lua require("jdtls").organize_imports()<CR>', desc = "Java Organize imports" },
 		{ "<leader>jev", '<CMD>lua require("jdtls").extract_variable_all()<CR>', desc = "Java Extract variable" },
 		{ "<leader>jec", '<CMD>lua require("jdtls").extract_constant()<CR>', desc = "Java Extract constant" },
