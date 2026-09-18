@@ -36,8 +36,5 @@ map('n', '<leader>ldn', function()
 end, { desc = 'Diagnostics Next diagnostic' })
 map('n', '<leader>ldl', vim.diagnostic.setloclist, { desc = 'Diagnostics Diagnostic loclist' })
 
--- Terminal
-map('t', '<C-x>', '<C-\\><C-N>', { desc = 'Terminal escape terminal mode' })
-
 -- Project-related stuff
 map('n', 'gx', utils.jiraExtendedGx, { desc = 'JIRA extended gx' })

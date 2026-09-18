@@ -3,18 +3,11 @@ return {
     'NorinB/sidekick.nvim',
     keys = {
       {
-        '<leader>ta',
+        '<leader>ts',
         function()
           require('sidekick.cli').toggle({ filter = { installed = true } })
         end,
         desc = 'Sidekick toggle CLI',
-      },
-      {
-        '<leader>tA',
-        function()
-          require('sidekick.cli').select({ filter = { installed = true } })
-        end,
-        desc = 'Sidekick select CLI',
       },
       {
         '<leader>ad',

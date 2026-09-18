@@ -431,6 +431,7 @@ M.defaults = function()
     'docker_compose_language_service',
     'jsonls',
     'kotlin_language_server',
+    'lemminx',
     'pyright',
     'qmlls',
     'terraformls',

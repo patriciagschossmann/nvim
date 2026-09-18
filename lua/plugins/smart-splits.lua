@@ -9,14 +9,14 @@ return {
         require('smart-splits').move_cursor_left()
       end,
       desc = 'SmartSplits move cursor left',
-      mode = { 'n', 't' },
+      mode = { 'n' },
     },
     {
       '<C-j>',
       function()
         require('smart-splits').move_cursor_down()
       end,
-      mode = { 'n', 't' },
+      mode = { 'n' },
       desc = 'SmartSplits move cursor down',
     },
     {
@@ -24,7 +24,7 @@ return {
       function()
         require('smart-splits').move_cursor_up()
       end,
-      mode = { 'n', 't' },
+      mode = { 'n' },
       desc = 'SmartSplits move cursor up',
     },
     {
@@ -32,7 +32,7 @@ return {
       function()
         require('smart-splits').move_cursor_right()
       end,
-      mode = { 'n', 't' },
+      mode = { 'n' },
       desc = 'SmartSplits move cursor right',
     },
     {

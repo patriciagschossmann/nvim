@@ -102,6 +102,9 @@ return {
       end
 
       vim.filetype.add({
+        extension = {
+          fxml = 'xml',
+        },
         pattern = {
           -- [".*%.component%.html"] = "htmlangular", -- Sets the filetype to `angular` if it matches the pattern
           ['.*%.yaml'] = function(path, _)

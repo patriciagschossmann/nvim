@@ -2,7 +2,7 @@ return {
   {
     'mfussenegger/nvim-dap',
     keys = {
-      { '<leader>D', '<CMD>DapNew<CR>', desc = 'Debug New' },
+      { '<leader>dN', '<CMD>DapNew<CR>', desc = 'Debug New' },
       { '<leader>dba', '<CMD>DapClearBreakpoints<CR>', desc = 'Debug Clear Breakpoints' },
       {
         '<leader>dbc',
