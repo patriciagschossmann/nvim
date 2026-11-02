@@ -1,40 +1,44 @@
-local utils = require('utils')
+local utils = require("utils")
 
 local map = vim.keymap.set
 
 -- Lazy
-map('n', '<leader>L', '<CMD>Lazy<CR>', { desc = 'Lazy Open' })
+map("n", "<leader>L", "<CMD>Lazy<CR>", { desc = "Lazy Open" })
 
-map('i', 'jk', '<ESC>', { desc = 'Escape with jk' })
+map("i", "jk", "<ESC>", { desc = "Escape with jk" })
 
-map('n', '<leader><leader>', '<S-v>', { desc = 'Enter visual line mode' })
-map('n', '<leader>nb', '<C-o>', { desc = 'Navigate back' })
-map('n', '<leader>nf', '<C-i>', { desc = 'Navigate forward' })
-map('n', '<leader>q', '<CMD>q<CR>', { desc = 'Quit window' })
-map('n', '<leader>Q', '<CMD>q!<CR>', { desc = 'Force quit window' })
-map('n', '<leader>w', '<CMD>w<CR>', { desc = 'Save file' })
-map('n', '<leader>os', "<CMD>silent !open '%'<CR>", { desc = 'open current file with OS handler' })
+map("n", "<leader><leader>", "<S-v>", { desc = "Enter visual line mode" })
+map("n", "<leader>nb", "<C-o>", { desc = "Navigate back" })
+map("n", "<leader>nf", "<C-i>", { desc = "Navigate forward" })
+map("n", "<leader>q", "<CMD>q<CR>", { desc = "Quit window" })
+map("n", "<leader>Q", "<CMD>q!<CR>", { desc = "Force quit window" })
+map("n", "<leader>w", "<CMD>w<CR>", { desc = "Save file" })
+map("n", "<leader>os", "<CMD>silent !open '%'<CR>", { desc = "open current file with OS handler" })
 
 -- Buffer
-map('n', '<leader>bn', '<CMD>enew<CR>', { desc = 'Buffer New' })
+map("n", "<leader>bn", "<CMD>enew<CR>", { desc = "Buffer New" })
+
+-- SA3 Maven run configurations
+map("n", "<leader>rr", "<CMD>Sa3Run<CR>", { desc = "SA3 run configuration" })
+map("n", "<leader>rs", "<CMD>Sa3Stop<CR>", { desc = "SA3 stop run configuration" })
 
 -- Tabs
-map('n', '<C-Tab>', '<CMD>tabnext<CR>', { desc = 'Tab Next' })
-map('n', '<C-S-Tab>', '<CMD>tabprevious<CR>', { desc = 'Tab Previous' })
+map("n", "<C-Tab>", "<CMD>tabnext<CR>", { desc = "Tab Next" })
+map("n", "<C-S-Tab>", "<CMD>tabprevious<CR>", { desc = "Tab Previous" })
 
 -- Highlights
-map('n', '<Esc>', '<CMD>noh<CR>', { desc = 'General Clear all highlights' })
-map('n', '<leader>A', 'ggVG', { desc = 'Highlight all' })
+map("n", "<Esc>", "<CMD>noh<CR>", { desc = "General Clear all highlights" })
+map("n", "<leader>A", "ggVG", { desc = "Highlight all" })
 
 -- Diagnostics
-map('n', '<leader>ldf', vim.diagnostic.open_float, { desc = 'Diagnostics Floating diagnostics' })
-map('n', '<leader>ldp', function()
-  vim.diagnostic.jump({ count = -1 })
-end, { desc = 'Diagnostics Prev diagnostic' })
-map('n', '<leader>ldn', function()
-  vim.diagnostic.jump({ count = 1 })
-end, { desc = 'Diagnostics Next diagnostic' })
-map('n', '<leader>ldl', vim.diagnostic.setloclist, { desc = 'Diagnostics Diagnostic loclist' })
+map("n", "<leader>ldf", vim.diagnostic.open_float, { desc = "Diagnostics Floating diagnostics" })
+map("n", "<leader>ldp", function()
+	vim.diagnostic.jump({ count = -1 })
+end, { desc = "Diagnostics Prev diagnostic" })
+map("n", "<leader>ldn", function()
+	vim.diagnostic.jump({ count = 1 })
+end, { desc = "Diagnostics Next diagnostic" })
+map("n", "<leader>ldl", vim.diagnostic.setloclist, { desc = "Diagnostics Diagnostic loclist" })
 
 -- Project-related stuff
-map('n', 'gx', utils.jiraExtendedGx, { desc = 'JIRA extended gx' })
+map("n", "gx", utils.jiraExtendedGx, { desc = "JIRA extended gx" })
