@@ -20,8 +20,8 @@ map("n", "<leader>rr", "<CMD>Sa3Run<CR>", { desc = "SA3 run configuration" })
 map("n", "<leader>rs", "<CMD>Sa3Stop<CR>", { desc = "SA3 stop run configuration" })
 
 -- Buffer
-map("n", "<leader>bn", "<CMD>enew<CR>", { desc = "Buffer New" })
 map({ "n", "x" }, "<leader>b", "", { desc = "+Buffer" })
+map("n", "<leader>bn", "<CMD>enew<CR>", { desc = "Buffer New" })
 
 -- Tabs
 map("n", "<C-Tab>", "<CMD>tabnext<CR>", { desc = "Tab Next" })
