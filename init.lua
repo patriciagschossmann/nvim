@@ -1,5 +1,16 @@
 require('options')
 
+-- load autocmds
+require('autocmds')
+
+-- load custom commands
+require('commands')
+
+-- load key bindings
+vim.schedule(function()
+  require('mappings')
+end)
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
