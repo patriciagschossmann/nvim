@@ -152,7 +152,19 @@ return {
 				".git",
 			},
 
-			dap = { hotcodereplace = "auto", config_overrides = {} },
+				dap = {
+					hotcodereplace = "auto",
+					config_overrides = {},
+					config = {
+						{
+							name = "Attach to remote JVM (5005)",
+							type = "java",
+							request = "attach",
+							hostName = "127.0.0.1",
+							port = 5005,
+						},
+					},
+				},
 			-- scanning for main classes is slow on large multi module projects, set to false to skip
 			dap_main = {},
 

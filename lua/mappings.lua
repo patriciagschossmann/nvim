@@ -16,8 +16,8 @@ map("n", "<leader>w", "<CMD>w<CR>", { desc = "Save file" })
 map("n", "<leader>os", "<CMD>silent !open '%'<CR>", { desc = "open current file with OS handler" })
 
 -- SA3 Maven run configurations
-map("n", "<leader>rr", "<CMD>Sa3Run<CR>", { desc = "SA3 run configuration" })
-map("n", "<leader>rs", "<CMD>Sa3Stop<CR>", { desc = "SA3 stop run configuration" })
+map("n", "<leader>cr", "<CMD>ConfigRun<CR>", { desc = "Configuration Run" })
+map("n", "<leader>cd", "<CMD>ConfigDebug<CR>", { desc = "Configuration Debug" })
 
 -- Buffer
 map({ "n", "x" }, "<leader>b", "", { desc = "+Buffer" })

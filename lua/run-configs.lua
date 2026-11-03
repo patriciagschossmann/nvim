@@ -94,9 +94,23 @@ local function project_root()
 	if path == "" then
 		path = vim.uv.cwd()
 	end
-	return vim.fs.root(path, { ".run", ".idea", ".git" })
-		or vim.fs.root(path, { "pom.xml" })
-		or vim.uv.cwd()
+	return vim.fs.root(path, { ".run", ".idea", ".git" }) or vim.fs.root(path, { "pom.xml" }) or vim.uv.cwd()
+end
+
+local function workspace_config_order(root)
+	local path = root .. "/.idea/workspace.xml"
+	if vim.fn.filereadable(path) ~= 1 then
+		return {}
+	end
+	local xml = table.concat(vim.fn.readfile(path), "\n")
+	local run_manager = xml:match('<component name="RunManager"(.-)</component>') or ""
+	local order = {}
+	for item in run_manager:gmatch('<item%s+itemvalue="(.-)"%s*/>') do
+		local value = decode_xml(item)
+		value = value:gsub("^[^.]+%.", "")
+		order[value] = #vim.tbl_keys(order) + 1
+	end
+	return order
 end
 
 local function config_files(root)
@@ -108,7 +122,9 @@ local function config_files(root)
 	}) do
 		vim.list_extend(result, vim.fn.glob(pattern, false, true))
 	end
-	table.sort(result)
+	-- Keep the filesystem/glob order. IntelliJ's .run XML files are presented
+	-- in the order returned by the project configuration directory; do not
+	-- apply an alphabetical or environment-based sort here.
 	return result
 end
 
@@ -126,6 +142,7 @@ local function read_config(path, root)
 		type = config_type,
 		main_class = option(xml, "MAIN_CLASS_NAME"),
 		java = option(xml, "ALTERNATIVE_JRE_PATH"),
+		group = attribute(configuration, "folderName"),
 		vm_args = shell_words(option(xml, "VM_PARAMETERS") or ""),
 		program_args = shell_words(option(xml, "PROGRAM_PARAMETERS") or ""),
 		env = {},
@@ -217,20 +234,6 @@ function M.stop()
 	end
 end
 
-local function group_for_config(name)
-	local upper = name:upper()
-	if upper:find("LOCAL", 1, true) then
-		return "LOCAL"
-	elseif upper:match("INT[1-4]") then
-		return upper:match("INT[1-4]")
-	elseif upper:match("TEST[1-2]") then
-		return upper:match("TEST[1-2]")
-	elseif upper:find("GEN", 1, true) then
-		return "GEN"
-	end
-	return nil
-end
-
 local function icon_for_group(group)
 	if not group then
 		return "󰖲"
@@ -255,20 +258,10 @@ local run_config_icon = "󰖲"
 local shell_icon = "󰆍"
 local maven_icon = ""
 
-local category_order = {
-	LOCAL = 1,
-	INT1 = 2,
-	INT2 = 3,
-	INT3 = 4,
-	INT4 = 5,
-	TEST1 = 6,
-	TEST2 = 7,
-	GEN = 8,
-}
-
 local function prepare_configs(configs)
 	for _, config in ipairs(configs) do
-		config.group = group_for_config(config.name)
+		-- IntelliJ stores run-configuration folders in the XML as folderName.
+		-- Do not infer folders from configuration names.
 		config.group_icon = icon_for_group(config.group)
 		if config.kind == "shell" then
 			config.icon = shell_icon
@@ -279,24 +272,21 @@ local function prepare_configs(configs)
 		end
 	end
 
-	table.sort(configs, function(left, right)
-		local left_order = left.group and category_order[left.group] or math.huge
-		local right_order = right.group and category_order[right.group] or math.huge
-		if left_order == right_order then
-			return left.name:lower() < right.name:lower()
-		end
-		return left_order < right_order
-	end)
 end
 
 local function maven_command(root)
 	local configured = vim.env.MAVEN
 	if configured and configured ~= "" then
-		configured = vim.fn.expand(configured)
-		if vim.fn.executable(configured) == 1 then
-			return configured
+		configured = vim.fn.expand(vim.fn.trim(configured))
+		-- Accept an explicitly configured Maven invocation such as
+		-- "~/tools/apache-maven-3.9.16/bin/mvn" without letting the shell or
+		-- PATH replace it with another mvn executable.
+		if configured:sub(1, 2) == "~/" then
+			configured = vim.fn.expand(configured)
 		end
-		vim.notify("MAVEN is not executable: " .. configured, vim.log.levels.WARN)
+		-- MAVEN is authoritative. Keep the configured command/path exactly as
+		-- supplied; do not resolve it through PATH or fall back to another Maven.
+		return configured
 	end
 
 	local wrapper = root .. "/mvnw"
@@ -304,7 +294,11 @@ local function maven_command(root)
 		return wrapper
 	end
 
-	return vim.fn.exepath("mvn") ~= "" and vim.fn.exepath("mvn") or "mvn"
+	local system_maven = vim.fn.exepath("mvn")
+	if system_maven ~= "" then
+		return system_maven
+	end
+	return "mvn"
 end
 
 local function build_command(root, config)
@@ -314,10 +308,7 @@ local function build_command(root, config)
 
 	if config.kind == "shell" then
 		local maven = maven_command(root)
-		local maven_override = ""
-		if maven ~= "mvn" then
-			maven_override = "mvn() { " .. vim.fn.shellescape(maven) .. ' "$@"; }\n'
-		end
+		local maven_override = "mvn() { " .. vim.fn.shellescape(maven) .. ' "$@"; }\n'
 		if config.script_path and config.script_path ~= "" and config.script == "" then
 			return { "sh", "-lc", maven_override .. vim.fn.shellescape(config.script_path) }
 		end
@@ -364,8 +355,8 @@ local function select_tree(configs, callback, root)
 	if not (ok and finders_ok and sorters_ok and actions_ok and state_ok and previewers_ok) then
 		vim.ui.select(configs, {
 			prompt = "Select SA3 run configuration:",
-		format_item = function(config)
-			return config.icon .. "  " .. config.name
+			format_item = function(config)
+				return config.icon .. "  " .. config.name
 			end,
 		}, callback)
 		return
@@ -393,7 +384,7 @@ local function select_tree(configs, callback, root)
 			return lines
 		end
 
-	local config = value.config
+		local config = value.config
 		table.insert(lines, config.icon .. "  " .. config.name)
 		table.insert(lines, "")
 		table.insert(lines, "Type")
@@ -503,20 +494,19 @@ local function select_tree(configs, callback, root)
 				end
 			else
 				if not added_groups[config.group] then
-				added_groups[config.group] = true
-				local group_names = {}
-				for _, group_config in ipairs(groups[config.group]) do
-					table.insert(group_names, group_config.name)
-				end
-				table.insert(entries, {
-					kind = "group",
-					group = config.group,
-					configs = groups[config.group],
-					ordinal = config.group .. " " .. table.concat(group_names, " "),
-					display = folder_icon(expanded[config.group]) .. "  " .. config.group,
+					added_groups[config.group] = true
+					local group_names = {}
+					for _, group_config in ipairs(groups[config.group]) do
+						table.insert(group_names, group_config.name)
+					end
+					table.insert(entries, {
+						kind = "group",
+						group = config.group,
+						configs = groups[config.group],
+						ordinal = config.group .. " " .. table.concat(group_names, " "),
+						display = folder_icon(expanded[config.group]) .. "  " .. config.group,
 					})
 				end
-
 				local show_children = expanded[config.group] or (prompt ~= "" and matching_groups[config.group])
 				if show_children and matches(config.name, prompt) then
 					table.insert(entries, {
@@ -588,7 +578,7 @@ local function select_tree(configs, callback, root)
 					return
 				end
 
-		if selection.value.kind == "group" then
+				if selection.value.kind == "group" then
 					local group = selection.value.group
 					expanded[group] = not expanded[group]
 					current_picker._sa3_group_to_restore = group
@@ -632,6 +622,41 @@ local function select_tree(configs, callback, root)
 	picker:find()
 end
 
+function M.internal()
+	return {
+		project_root = project_root,
+		config_files = config_files,
+		read_config = read_config,
+		prepare_configs = prepare_configs,
+		select_tree = select_tree,
+		build_command = build_command,
+		environment = environment,
+		start_terminal = function(config, command, root, title)
+			M.stop()
+			local terminal = require("snacks.terminal")
+			local command_text = command_line(command)
+			local terminal_instance = terminal.open(command_text, {
+				cwd = config.cwd or root,
+				env = environment(config.env),
+				title = title or ("SA3 Run: " .. config.name),
+				auto_close = false,
+				win = {
+					position = "bottom",
+					height = 15,
+				},
+			})
+			vim.schedule(function()
+				if terminal_instance and terminal_instance.win and vim.api.nvim_win_is_valid(terminal_instance.win) then
+					vim.api.nvim_set_current_win(terminal_instance.win)
+					vim.cmd("startinsert")
+				end
+			end)
+			active_job = terminal_instance and terminal_instance.job_id or nil
+			return active_job
+		end,
+	}
+end
+
 function M.run()
 	local root = project_root()
 	local configs = {}
@@ -640,7 +665,6 @@ function M.run()
 		if config then
 			table.insert(configs, config)
 		end
-
 	end
 
 	if #configs == 0 then
@@ -661,48 +685,7 @@ function M.run()
 
 		local command = build_command(root, config)
 
-		M.stop()
-		vim.cmd("botright split")
-		vim.cmd("resize 15")
-		local buffer = vim.api.nvim_create_buf(false, true)
-		vim.api.nvim_win_set_buf(0, buffer)
-		vim.bo[buffer].bufhidden = "wipe"
-		vim.api.nvim_buf_set_name(buffer, "SA3 Run: " .. config.name)
-		local terminal_win = vim.api.nvim_get_current_win()
-		vim.wo[terminal_win].scrolloff = 0
-		vim.keymap.set("t", "<C-c>", function()
-			M.stop()
-		end, { buffer = buffer, silent = true, desc = "Stop SA3 run" })
-
-		active_job = vim.fn.jobstart(command, {
-			cwd = config.cwd or root,
-			env = environment(config.env),
-			term = true,
-			on_stdout = function()
-				vim.schedule(function()
-					if vim.api.nvim_win_is_valid(terminal_win) and vim.api.nvim_buf_is_valid(buffer) then
-						local line_count = vim.api.nvim_buf_line_count(buffer)
-						vim.api.nvim_win_set_cursor(terminal_win, { math.max(line_count, 1), 0 })
-					end
-				end)
-			end,
-			on_exit = function(_, code)
-				active_job = nil
-				vim.schedule(function()
-					if code == 0 then
-						vim.notify("SA3 run stopped: " .. config.name)
-					else
-						vim.notify("SA3 run failed (Exit " .. code .. "): " .. config.name, vim.log.levels.ERROR)
-					end
-				end)
-			end,
-		})
-		vim.cmd("startinsert")
-
-		if active_job <= 0 then
-			vim.notify("Could not start Maven process", vim.log.levels.ERROR)
-			active_job = nil
-		end
+		M.internal().start_terminal(config, command, root, "SA3 Run: " .. config.name)
 	end, root)
 end
 
